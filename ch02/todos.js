@@ -1,5 +1,9 @@
 // State of the app
-const todos = ['Walk the dog', 'Water the plants', 'Sand the chairs']
+const todos = [
+    { description: 'Walk the dog', done: true },
+    { description: 'Water the plants', done: false },
+    { description: 'Sand the chairs', done: false },
+]
 // HTML element references
 const addTodoInput = document.getElementById('todo-input')
 const addTodoButton = document.getElementById('add-todo-btn')
@@ -29,45 +33,69 @@ function renderTodoInReadMode(todo) {
     // TODO: Implement this function
     const li = document.createElement('li')
     const span = document.createElement('span')
-    span.textContent = todo
-    span.addEventListener("dblclick", () => {
-        const idx = todos.indexOf(todo)
-        todosList.replaceChild(renderTodoInEditMode(todo), todosList.children[idx])
-    })
-    li.append(span)
-    
+    span.textContent = todo.description
 
-    const button = document.createElement('button')
-    button.textContent = 'Delete';
-    button.addEventListener('click', () => {
-        const idx = todos.indexOf(todo)
-        removeTodo(idx)
-    })
-    li.append(button)
+    if (todo.done) {
+        span.classList.add('done')
+
+    }
+
+    if (!todo.done) {
+        span.addEventListener("dblclick", () => {
+            const idx = todos.indexOf(todo)
+            todosList.replaceChild(renderTodoInEditMode(todo), todosList.children[idx])
+        })
+
+
+
+    }
+    li.append(span)
+
+
+    if (!todo.done) {
+        const button = document.createElement('button')
+        button.textContent = 'Done';
+        button.addEventListener('click', () => {
+            const idx = todos.indexOf(todo)
+            removeTodo(idx)
+        })
+        li.append(button)
+    }
+
     return li
 }
 
 function addTodo() {
-    const newTodo = addTodoInput.value
+    const description = addTodoInput.value
+    if (todoExists(description)) {
+        alert('Todo already exists')
+        return
+    }
+
+    const newTodo = { description: description, done: false }
     todos.push(newTodo)
+
+
     const todo = renderTodoInReadMode(newTodo)
 
     todosList.append(todo);
     addTodoInput.value = ''
     addTodoButton.disabled = true
+
+    readTodo(description)
 }
 
 function removeTodo(idx) {
-    todos.splice(idx, 1)
-    todosList.removeChild(todosList.children[idx])
+    todos[idx].done = true
+    todosList.replaceChild(renderTodoInReadMode(todos[idx]), todosList.children[idx])
 }
 
 function renderTodoInEditMode(todo) {
-    // TODO: Implement this function
+
     const li = document.createElement('li')
     const input = document.createElement('input')
     input.type = 'text'
-    input.value = todo
+    input.value = todo.description
     li.append(input)
 
     const saveBtn = document.createElement('button');
@@ -91,6 +119,18 @@ function renderTodoInEditMode(todo) {
 
 function updateTodo(idx, todo) {
     // TODO: Implement this function
-    todos[idx] = todo
-    todosList.replaceChild(renderTodoInReadMode(todo), todosList.children[idx])
+    todos[idx]['description'] = todo
+    todosList.replaceChild(renderTodoInReadMode(todos[idx]), todosList.children[idx])
+}
+function todoExists(description) {
+    const cleanTodos = todos.map((todo) => todo.description.trim().toLowerCase())
+    return cleanTodos.includes(description.trim().toLowerCase())
+}
+
+function readTodo(description) {
+    const message = new SpeechSynthesisUtterance()
+    message.lang = 'th-TH'
+    message.text = description
+    message.voice = speechSynthesis.getVoices()[0]
+    speechSynthesis.speak(message)
 }
