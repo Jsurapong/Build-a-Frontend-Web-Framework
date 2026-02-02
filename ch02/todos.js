@@ -35,7 +35,7 @@ function renderTodoInReadMode(todo) {
     const span = document.createElement('span')
     span.textContent = todo.description
 
-    if (todo.done) {
+    if (todo.done) {   
         span.classList.add('done')
 
     }
